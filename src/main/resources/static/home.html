@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home - Emisiones CO2</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome para íconos -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Fondo de la página usando solo la imagen */
+    body {
+      background: url('/images/fondoCo2.jpg') no-repeat center center fixed;
+      background-size: cover;
+      filter: brightness(0.95);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Sección Hero con overlay para resaltar el contenido */
+    .hero {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .hero-overlay {
+      background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+      padding: 30px;
+      border-radius: 10px;
+    }
+    .hero-overlay h1 {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .hero-overlay p {
+      font-size: 1.2rem;
+      color: #fff;
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+    /* Estilos para destacar el rango de fechas, fuente de datos y origen del dataset */
+    .hero-overlay .data-range,
+    .hero-overlay .data-source,
+    .hero-overlay .data-url {
+      font-size: 1rem;
+      color: #ffcc00;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .data-url a {
+      color: #ffcc00;
+      text-decoration: none;
+    }
+    .data-url a:hover {
+      text-decoration: underline;
+    }
+    .btn-enter {
+      margin-top: 30px;
+    }
+    /* Footer con overlay transparente para que se vea la imagen de fondo */
+    .footer {
+      width: 100%;
+      padding: 10px 0;
+    }
+    .footer-overlay {
+      background-color: rgba(0, 0, 0, 0.5); /* Ajusta la opacidad según prefieras */
+      padding: 10px 0;
+    }
+    .footer-overlay p {
+      color: #fff;
+      text-align: center;
+      margin: 0;
+    }
+    .footer-overlay a {
+      color: #ffcc00;
+      text-decoration: none;
+    }
+    .footer-overlay a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sección Hero sin navbar -->
+  <section class="hero">
+    <div class="hero-overlay">
+      <h1>Bienvenido a Emisiones CO2</h1>
+      <p>
+        Descubre y analiza datos sobre las emisiones de CO₂ de diversos sectores a nivel nacional. 
+        Nuestro portal te ofrece información actualizada y visualizaciones interactivas para explorar tendencias y estadísticas que te ayudarán a comprender mejor el impacto ambiental.
+      </p>
+      <p class="data-range">
+        Datos comprendidos entre el 2022 y el 2024.
+      </p>
+      <p class="data-source">
+        Los datos están subidos en MongoDB Atlas Database.
+      </p>
+      <p class="data-url">
+        Fuente del dataset: <a href="https://carbonmonitor.org/" target="_blank">https://carbonmonitor.org/</a>
+      </p>
+      <a href="index.html" class="btn btn-primary btn-lg btn-enter">
+        <i class="fas fa-chart-bar"></i> Ver Datos
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer con overlay -->
+  <footer class="footer">
+    <div class="footer-overlay">
+      <div class="container">
+        <p>
+          &copy; 2025 Emisiones CO2. Diseñado con <i class="fas fa-heart"></i> por 
+          <a href="https://www.linkedin.com/in/enriqueforte" target="_blank">Enrique Forte</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

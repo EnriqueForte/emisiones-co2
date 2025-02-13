@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Emisiones de CO2</title>
+  
+  <!-- Bootstrap para diseño responsivo -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Chart.js para los gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    /* Fondo con imagen */
+    body {
+      background: url('/images/dashboard.jpg') no-repeat center center fixed;
+      background-size: cover;
+      filter: brightness(0.9);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Contenedor principal con fondo oscuro semi-transparente */
+    .content-container {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 95%;
+      width: 1400px;
+      color: white;
+    }
+
+    /* Estilo para títulos */
+    h1 {
+      text-align: center;
+      color: #f4b400; /* Amarillo brillante */
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    
+    h2 {
+      text-align: center;
+      color: #ffffff; /* Blanco para mayor contraste */
+      font-size: 1.8rem;
+    }
+
+    /* Contenedor de gráficos */
+    #charts-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    /* Ajuste de tamaños de los gráficos */
+    .chart-container {
+      width: 70%; /* Ocupa el 70% de la pantalla */
+      max-width: 1200px;
+    }
+
+    #bar-chart-container {
+      height: 400px; /* Más grande que la tarta */
+    }
+
+    #pie-chart-container {
+      height: 300px; /* Más pequeño que el de barras */
+    }
+
+    /* Ajuste de las leyendas y ejes para mayor legibilidad */
+    .chart-legend {
+      font-size: 1rem;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Contenedor principal -->
+  <div class="content-container">
+    <h1>Dashboard Emisiones de CO2</h1>
+    <h2 id="sectorTitle">Cargando datos...</h2>
+
+    <!-- Contenedor para gráficos -->
+    <div id="charts-container">
+      <!-- Gráfico de barras (más grande que la tarta) -->
+      <div class="chart-container" id="bar-chart-container">
+        <canvas id="emissionsBarChart"></canvas>
+      </div>
+      
+      <!-- Gráfico de tarta -->
+      <div class="chart-container" id="pie-chart-container">
+        <canvas id="emissionsPieChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Botón para volver a la página de datos -->
+    <button id="backToData" class="btn btn-warning mt-4">Volver a Datos</button>
+  </div>
+
+  <script>
+    async function loadChartData() {
+      try {
+        // Obtener parámetros de la URL (sector y rango de fechas)
+        const params = new URLSearchParams(window.location.search);
+        const sectorParam = params.get('sector') || 'Todos los sectores';
+        const startDateParam = params.get('startDate') || null;
+        const endDateParam = params.get('endDate') || null;
+
+        // Determinar el texto correcto para el rango de fechas
+        let dateRangeText = "Todo el período disponible";
+        if (startDateParam && endDateParam) {
+          dateRangeText = `${startDateParam} - ${endDateParam}`;
+        }
+
+        // Actualizar el título con el sector y las fechas
+        document.getElementById('sectorTitle').textContent = `Datos de ${sectorParam} (${dateRangeText})`;
+
+        // Cargar los datos desde la API
+        const response = await fetch('/api/emisiones');
+        const data = await response.json();
+
+        // Filtrar datos según las fechas seleccionadas
+        let filteredData = data;
+        if (startDateParam && endDateParam) {
+          const startDate = new Date(startDateParam);
+          const endDate = new Date(endDateParam);
+          filteredData = filteredData.filter(item => {
+            const itemDate = new Date(item.date.split('/').reverse().join('-'));
+            return itemDate >= startDate && itemDate <= endDate;
+          });
+        }
+
+        // --- Gráfico de Barras (Mostrará SOLO el sector filtrado) ---
+        const monthlyData = {};
+        filteredData
+          .filter(item => sectorParam === 'Todos los sectores' || item.sector === sectorParam)
+          .forEach(item => {
+            const [day, month, year] = item.date.split('/');
+            const key = `${year}-${month}`;
+            if (!monthlyData[key]) {
+              monthlyData[key] = 0;
+            }
+            monthlyData[key] += parseFloat(item.mtCO2perday);
+          });
+
+        const barLabels = Object.keys(monthlyData).sort();
+        const barValues = barLabels.map(key => monthlyData[key]);
+
+        // Renderizar gráfico de barras con ejes más visibles
+        const barCtx = document.getElementById('emissionsBarChart').getContext('2d');
+        new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: barLabels,
+            datasets: [{
+              label: `Emisiones de ${sectorParam}`,
+              data: barValues,
+              backgroundColor: 'rgba(54, 162, 235, 0.6)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                ticks: {
+                  color: 'white' // Hace los valores del eje X más legibles
+                }
+              },
+              y: {
+                ticks: {
+                  color: 'white' // Hace los valores del eje Y más legibles
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  color: 'white' /* Mayor contraste en la leyenda */
+                }
+              }
+            }
+          }
+        });
+
+        // --- Gráfico de Tarta (Mostrará TODOS los sectores filtrados por fecha) ---
+        const sectorData = {};
+        filteredData.forEach(item => {
+          if (!sectorData[item.sector]) {
+            sectorData[item.sector] = 0;
+          }
+          sectorData[item.sector] += parseFloat(item.mtCO2perday);
+        });
+
+        const pieLabels = Object.keys(sectorData);
+        const pieValues = pieLabels.map(key => sectorData[key]);
+
+        // Renderizar gráfico de tarta
+        const pieCtx = document.getElementById('emissionsPieChart').getContext('2d');
+        new Chart(pieCtx, {
+          type: 'pie',
+          data: {
+            labels: pieLabels,
+            datasets: [{
+              data: pieValues,
+              backgroundColor: [
+                'rgba(33, 150, 243, 0.6)',
+                'rgba(76, 175, 80, 0.6)',
+                'rgba(255, 193, 7, 0.6)',
+                'rgba(244, 67, 54, 0.6)',
+                'rgba(156, 39, 176, 0.6)',
+                'rgba(0, 188, 212, 0.6)'
+              ],
+              borderColor: '#fff',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: {
+                  color: 'white' /* Mejor contraste para la leyenda */
+                }
+              }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error('Error cargando los datos del gráfico:', error);
+      }
+    }
+
+    document.getElementById('backToData').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    document.addEventListener('DOMContentLoaded', loadChartData);
+  </script>
+</body>
+</html>

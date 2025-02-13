@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Datos de Emisiones de CO2</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome para íconos -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Fondo de la página con imagen */
+    body {
+      background: url('/images/index.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    /* Contenedor principal con fondo oscuro semitransparente y texto blanco */
+    .content-container {
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 80px; /* Espacio para evitar solapamiento con la navbar */
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    /* Título principal en blanco con color destacado */
+    h1 {
+      font-weight: bold;
+      color: #f4b400;
+    }
+    /* Botones estilizados */
+    .btn {
+      border-radius: 5px;
+    }
+    .btn-success {
+      background-color: #388e3c;
+      border-color: #388e3c;
+    }
+    .btn-primary {
+      background-color: #1976d2;
+      border-color: #1976d2;
+    }
+    .btn-secondary {
+      background-color: #757575;
+      border-color: #757575;
+    }
+    /* Estilos de la tabla */
+    table {
+      margin-top: 20px;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: transparent;
+    }
+    .table, .table th, .table td {
+      background-color: transparent !important;
+    }
+    /* Encabezados de la tabla con fondo azul y texto blanco */
+    th {
+      background-color: #1565c0;
+      color: white;
+      font-weight: bold;
+    }
+    /* Datos de la tabla en blanco */
+    .table tbody td {
+      color: #fff;
+    }
+    /* Hover en filas de la tabla con fondo semitransparente */
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transition: background-color 0.3s;
+    }
+    /* Etiquetas del formulario en blanco */
+    label {
+      font-weight: bold;
+      color: #fff;
+    }
+    /* Estilos para el contenedor de filtros: fondo transparente y título */
+    #filterForm {
+      background: transparent !important;
+      border: none;
+    }
+    #filterForm .card-header {
+      background: transparent;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      color: #f4b400;
+    }
+    #filterForm .card-body {
+      background: transparent;
+    }
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      padding: 10px 0;
+      background-color: #1565c0;
+      color: white;
+    }
+    footer a {
+      color: #ffcc00;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <i class="fas fa-cloud"></i> Emisiones CO2
+      </a>
+      <ul class="navbar-nav ms-auto">
+        <!-- Botón Home agregado -->
+        <li class="nav-item">
+          <a class="nav-link" href="home.html">Home</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Contenedor principal -->
+  <div class="container content-container">
+    <!-- Título principal -->
+    <h1 class="text-center mb-4">
+      <i class="fas fa-chart-bar"></i> Datos de Emisiones de CO2
+    </h1>
+
+    <!-- Contenedor de Filtros con título y fondo transparente -->
+    <div id="filterForm" class="card mb-4">
+      <div class="card-header">
+        <h3 class="card-title">Filtros de Búsqueda</h3>
+      </div>
+      <div class="card-body">
+        <form class="row g-3">
+          <!-- Campo de fecha inicial -->
+          <div class="col-md-4">
+            <label for="startDate" class="form-label">Fecha inicio (DD/MM/YYYY)</label>
+            <input type="text" class="form-control" id="startDate" placeholder="Ej: 01/01/2022">
+          </div>
+          <!-- Campo de fecha final -->
+          <div class="col-md-4">
+            <label for="endDate" class="form-label">Fecha fin (DD/MM/YYYY)</label>
+            <input type="text" class="form-control" id="endDate" placeholder="Ej: 31/01/2022">
+          </div>
+          <!-- Filtro por sector -->
+          <div class="col-md-4">
+            <label for="sectorFilter" class="form-label">Sector</label>
+            <select id="sectorFilter" class="form-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <!-- Botones de acción -->
+          <div class="col-12 text-end">
+            <button type="button" id="applyFilter" class="btn btn-primary me-2">
+              <i class="fas fa-filter"></i> Aplicar Filtros
+            </button>
+            <button type="button" id="clearFilter" class="btn btn-secondary me-2">
+              <i class="fas fa-eraser"></i> Limpiar Filtros
+            </button>
+            <button type="button" id="goToChart" class="btn btn-success">
+              <i class="fas fa-chart-line"></i> Ver Gráfico
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Indicador de Carga -->
+    <div id="loadingIndicator" class="text-center my-3" style="display: none;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+
+    <!-- Tabla de datos -->
+    <div class="table-responsive">
+      <table id="dataTable" class="table table-striped table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>Country</th>
+            <th>Date</th>
+            <th>Sector</th>
+            <th>mtCO2perday</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Controles de Paginación con Flechas -->
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center" id="pagination"></ul>
+    </nav>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      &copy; 2025 - Diseñado por 
+      <a href="https://www.linkedin.com/in/enriqueforte" target="_blank">Enrique Forte</a>
+      | Emisiones de CO2 | Diseñado con <i class="fas fa-heart"></i>
+    </p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+  <script>
+    let globalData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const pageSize = 50; // Número de registros por página
+
+    // Convierte una fecha en formato DD/MM/YYYY a un objeto Date
+    function parseDate(ddmmyyyy) {
+      const parts = ddmmyyyy.split("/");
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+
+    // Actualiza la tabla con los datos usando DocumentFragment
+    function updateTable(data) {
+      const tableBody = document.querySelector("#dataTable tbody");
+      tableBody.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+      data.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${item.country || ""}</td>
+                         <td>${item.date || ""}</td>
+                         <td>${item.sector || ""}</td>
+                         <td>${item.mtCO2perday != null ? item.mtCO2perday : ""}</td>`;
+        fragment.appendChild(row);
+      });
+      tableBody.appendChild(fragment);
+    }
+
+    // Actualiza los controles de paginación usando flechas
+    function updatePaginationControls(data) {
+      const paginationContainer = document.getElementById("pagination");
+      paginationContainer.innerHTML = "";
+      const totalPages = Math.ceil(data.length / pageSize);
+
+      // Botón Anterior (flecha izquierda)
+      const prevLi = document.createElement("li");
+      prevLi.classList.add("page-item");
+      if (currentPage <= 1) prevLi.classList.add("disabled");
+      const prevLink = document.createElement("a");
+      prevLink.classList.add("page-link");
+      prevLink.href = "#";
+      prevLink.innerHTML = '&laquo;';
+      prevLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+          renderTablePage(currentPage - 1, data);
+        }
+      });
+      prevLi.appendChild(prevLink);
+      paginationContainer.appendChild(prevLi);
+
+      // Indicador de página actual
+      const infoLi = document.createElement("li");
+      infoLi.classList.add("page-item", "disabled");
+      const infoSpan = document.createElement("span");
+      infoSpan.classList.add("page-link");
+      infoSpan.textContent = `Página ${currentPage} de ${totalPages}`;
+      infoLi.appendChild(infoSpan);
+      paginationContainer.appendChild(infoLi);
+
+      // Botón Siguiente (flecha derecha)
+      const nextLi = document.createElement("li");
+      nextLi.classList.add("page-item");
+      if (currentPage >= totalPages) nextLi.classList.add("disabled");
+      const nextLink = document.createElement("a");
+      nextLink.classList.add("page-link");
+      nextLink.href = "#";
+      nextLink.innerHTML = '&raquo;';
+      nextLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+          renderTablePage(currentPage + 1, data);
+        }
+      });
+      nextLi.appendChild(nextLink);
+      paginationContainer.appendChild(nextLi);
+    }
+
+    // Renderiza una página de la tabla
+    function renderTablePage(page, data) {
+      currentPage = page;
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const pageData = data.slice(startIndex, endIndex);
+      updateTable(pageData);
+      updatePaginationControls(data);
+    }
+
+    // Llena el selector de sectores con los valores únicos
+    function populateSectorFilter(data) {
+      const sectorSelect = document.getElementById('sectorFilter');
+      const sectors = [...new Set(data.map(item => item.sector))].filter(s => s);
+      sectors.forEach(sector => {
+        const option = document.createElement("option");
+        option.value = sector;
+        option.textContent = sector;
+        sectorSelect.appendChild(option);
+      });
+    }
+
+    // Aplica los filtros y reinicia la paginación
+function applyFilters() {
+  const startDateValue = document.getElementById('startDate').value;
+  const endDateValue = document.getElementById('endDate').value;
+  const sectorValue = document.getElementById('sectorFilter').value;
+  filteredData = globalData;
+  if (sectorValue) {
+    filteredData = filteredData.filter(item => item.sector === sectorValue);
+  }
+  if (startDateValue && endDateValue) {
+    const startDate = parseDate(startDateValue);
+    const endDate = parseDate(endDateValue);
+    filteredData = filteredData.filter(item => {
+      const itemDate = parseDate(item.date);
+      return itemDate >= startDate && itemDate <= endDate;
+    });
+  }
+  // Ordena los datos filtrados por fecha (ascendente)
+  filteredData.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+  renderTablePage(1, filteredData);
+}
+
+    // Limpia los filtros y muestra todos los datos
+    function clearFilters() {
+      document.getElementById('startDate').value = "";
+      document.getElementById('endDate').value = "";
+      document.getElementById('sectorFilter').value = "";
+      filteredData = globalData;
+      renderTablePage(1, globalData);
+    }
+
+    // Carga los datos desde la API con indicador de carga
+    async function loadData() {
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      loadingIndicator.style.display = 'block';
+      try {
+        const response = await fetch('/api/emisiones');//endpoint /api/emisiones devolverá en formato JSON la lista de todas las emisiones almacenadas en MongoDB.
+        const data = await response.json();
+        globalData = data;
+        filteredData = data;
+        populateSectorFilter(data);
+        renderTablePage(1, data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+      loadingIndicator.style.display = 'none';
+    }
+
+    // Configura eventos al cargar la página
+    document.getElementById('applyFilter').addEventListener('click', applyFilters);
+    document.getElementById('clearFilter').addEventListener('click', clearFilters);
+    document.getElementById('goToChart').addEventListener('click', () => {
+      const sectorValue = document.getElementById('sectorFilter').value;
+      const url = sectorValue ? `chart.html?sector=${encodeURIComponent(sectorValue)}` : 'chart.html';
+      window.location.href = url;
+    });
+
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>
