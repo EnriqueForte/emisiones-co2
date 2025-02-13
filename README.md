@@ -48,7 +48,6 @@ La aplicación se puede desplegar en plataformas como Heroku, AWS o DigitalOcean
 
 ## 📈 Futuras mejoras
 
-- Integración de gráficos interactivos.
 - Autenticación y autorización.
 - Ampliación de opciones de filtrado.
 - Mejoras en la interfaz de usuario.
